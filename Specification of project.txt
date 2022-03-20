@@ -1,0 +1,31 @@
+A quien va dirigido
+Personas involucradas con el programa que son estudiantes de licenciatura
+-----------------------------------------------
+funcionalidades basicas
+#colectar datos de moviemiento (pasos)
+valor numerico cada 10min (puede ser 0)
+datos viculados a una hora y una fecha
+
+Documento TXT
+col1:fecha
+col:hora
+col3:movimiento (numero de pasos)
+------------------------------------------------
+Acumular los datos y graficarlo con respecto a las 24hrs
+a manera de histograma
+
+un registro esTilo lista (# pasos)
+myor tonalidad del color = cantidad de pasos (Talvez para el contador #pasos)
+------------------------------------------------
+tipo de diseño
+
+pantalla 1: Numero de pasos contados en total (El número se reincia cada día)
+pantalla 2: Cada 24hr crear un histaograma de los datos (la pantalla mostrará un histograma de los datos recolectados)
+
+opción de grafica en curso (actograma)
+--------------------------------------------------
+reunión una vez al mes
+
+opcion 1: https://www.npmjs.com/package/react-native-pedometer-ios-android
+
+exportar projecto: https://medium.com/sketch2react/react-export-guide-step-by-step-february-pilot-2019-version-52045e3749f9
