@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PedometerAtempt1</string>
+    <string name="Step_Counter">Step counter</string>
+    <string name="Step_detector">Step detector</string>
+</resources>
