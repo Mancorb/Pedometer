@@ -12,60 +12,63 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private TextView StepCounterVw, StepDetectVw;
+    private static final long START_TIME_IN_MILLIS = 100000;
+    private long mTimeLeftInMillis=START_TIME_IN_MILLIS;
+    private CountDownTimer mCountdowntimer;
+
+    private TextView  StepDetectVw, CountDownTV;
     private SensorManager sensorManager;
-    private Sensor nSensorCounter, nStepDetector;
-    private boolean counterAvailability, stepDetectorAvailability;
-    int stepcount = 0, stepsDtected = 0;
+    private Sensor  nStepDetector;
+    private boolean  stepDetectorAvailability;
+    int stepsDtected = 0, stepCounter =0;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Conectar el view con el objeto
+
+        //Conect with UI
+        CountDownTV=(TextView)findViewById(R.id.CountDowntTxt);
         StepDetectVw=(TextView)findViewById(R.id.Step_detector);
-        StepCounterVw=(TextView)findViewById(R.id.StepCounterTV);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
+        //Ask for permission to access pedometer sensor
         if(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){ //ask for permission
+                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
             requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, 0);
         }
-
+        //Stop phone from sleeping
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!=null){
-            nSensorCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-            counterAvailability = true;
-        }else{
-            StepCounterVw.setText("Step counter is not vailable");
-            counterAvailability = false;
-        }
+        //Change bool (true = pedometer available)
         if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)!=null){
             nStepDetector = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
             stepDetectorAvailability = true;
         }
         else{
-            StepDetectVw.setText("Step detector is unavailable");
+            StepDetectVw.setText("No se puede acceder al sensor");
             stepDetectorAvailability = false;
         }
-    }
+        countDown();
 
+    }
+    //Obtain cumulative ammount of steps
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        if(sensorEvent.sensor == nSensorCounter){
-            stepcount = (int) sensorEvent.values[0];
-            StepCounterVw.setText(String.valueOf(stepcount));
-        }else if (sensorEvent.sensor == nStepDetector){
+        if (sensorEvent.sensor == nStepDetector){
             stepsDtected = (int) (stepsDtected+sensorEvent.values[0]);
             StepDetectVw.setText(String.valueOf(stepsDtected));
+            stepCounter++;
         }
     }
 
@@ -74,27 +77,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    //What to do when the app resumes
     @Override
     protected void onResume() {
         super.onResume();
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!= null){
-            sensorManager.registerListener(this, nSensorCounter, SensorManager.SENSOR_DELAY_NORMAL);
-        }
-
         if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)!=null){
             sensorManager.registerListener(this,nStepDetector, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
+    //What to do when the app in no longer in main vew yet still running
     @Override
     protected void onPause() {
         super.onPause();
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)!= null){
-            sensorManager.unregisterListener(this, nSensorCounter);
-        }
 
         if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)!=null){
             sensorManager.unregisterListener(this, nStepDetector);
         }
+    }
+
+    public void timeFinnished (){
+        Toast.makeText(this, "Time is up", Toast.LENGTH_SHORT).show();
+        mTimeLeftInMillis = START_TIME_IN_MILLIS;
+        countDown();
+    }
+    public void countDown (){
+        //countdown
+        mCountdowntimer = new CountDownTimer(mTimeLeftInMillis, 1000) {
+            @Override
+            public void onTick(long millsUntilFinnished) {
+                mTimeLeftInMillis = millsUntilFinnished;
+                int minutes = (int) (mTimeLeftInMillis/1000) /60;
+                int seconds = (int) (mTimeLeftInMillis/1000) %60;
+                String timeLeftFormated = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+                CountDownTV.setText(timeLeftFormated);
+            }
+
+            @Override
+            public void onFinish() {
+                timeFinnished();
+            }
+        }.start();
     }
 }
