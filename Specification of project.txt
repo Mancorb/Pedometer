@@ -26,6 +26,8 @@ opción de grafica en curso (actograma)
 --------------------------------------------------
 reunión una vez al mes
 
+checar compatibilidad con smart watch de gama media (permite descargar apps externas)
+
 opcion 1: https://www.npmjs.com/package/react-native-pedometer-ios-android
 
 exportar projecto: https://medium.com/sketch2react/react-export-guide-step-by-step-february-pilot-2019-version-52045e3749f9

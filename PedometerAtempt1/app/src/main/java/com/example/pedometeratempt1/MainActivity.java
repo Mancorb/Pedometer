@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,7 +29,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private static final long START_TIME_IN_MILLIS = 6000;
+    private static final long START_TIME_IN_MILLIS = 600000;
     private long mTimeLeftInMillis=START_TIME_IN_MILLIS;
     private CountDownTimer mCountdowntimer;
 
@@ -39,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView  StepDetectVw, CountDownTV;
     private SensorManager sensorManager;
     private Sensor  nStepDetector;
-    private Button showData;
     private boolean  stepDetectorAvailability;
     int stepsDtected = 0, stepCounter =0;
 
@@ -63,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         CountDownTV=(TextView)findViewById(R.id.CountDowntTxt);
         StepDetectVw=(TextView)findViewById(R.id.Step_detector);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        showData = (Button) findViewById(R.id.AllDataB);
 
         //Ask for permission to access pedometer sensor
         if(ContextCompat.checkSelfPermission(this,
@@ -115,9 +112,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //--------------------------------------
     //Restart the count down with original ammount of miliseconds as well as call again the timmer method
     public void timeFinnished (){
-        Toast.makeText(this, "Time is up", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Time is up", Toast.LENGTH_SHORT).show();
         mTimeLeftInMillis = START_TIME_IN_MILLIS;
-        registrarDatos();
+        //registrarDatos();
         countDown();
     }
     // Uses certain ammount of miliseconds and counts down (it reflects the equivalent time in screen as minutes and seconds)
@@ -161,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
     //Cambio de pantalla
     public void AbrirRegistros (View view){
-        //Intent siguiente = new Intent(this, SegundoActi)
+        Intent siguiente = new Intent(this, RegistryView.class);
+        startActivity(siguiente);
     }
+
 }
