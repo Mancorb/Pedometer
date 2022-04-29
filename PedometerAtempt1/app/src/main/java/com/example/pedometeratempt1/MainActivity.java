@@ -23,24 +23,29 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.sql.Date;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-
+    //Ammount of time for timmer 600000 = 10 min
     private static final long START_TIME_IN_MILLIS = 600000;
-    private long mTimeLeftInMillis=START_TIME_IN_MILLIS;
+    //Set the stablished ammount of time to the counter variable
+    private long mTimeLeftInMillis = START_TIME_IN_MILLIS;
+    //Count down obj
     private CountDownTimer mCountdowntimer;
-
+    //String to store current date
     private String CurDate;
+    //String to store current hour
+    private String CurHour;
 
-    private TextView  StepDetectVw, CountDownTV;
+    private TextView  StepDetectVw, CountDownTV, TotalStepVw;
     private SensorManager sensorManager;
     private Sensor  nStepDetector;
     private boolean  stepDetectorAvailability;
     int stepsDtected = 0, stepCounter =0;
-
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -51,15 +56,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //Avoid it from rotating since it restarts the countdown
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         //----------------------------------------------------------------
-        //Obtain system date
-        Calendar calendar = Calendar.getInstance();
-        CurDate = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(calendar.getTime());
-        //----------------------------------------------------------------
 
 
         //Conect with UI
         CountDownTV=(TextView)findViewById(R.id.CountDowntTxt);
         StepDetectVw=(TextView)findViewById(R.id.Step_detector);
+        TotalStepVw=(TextView)findViewById(R.id.TotalStepsTV);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         //Ask for permission to access pedometer sensor
@@ -80,18 +82,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             stepDetectorAvailability = false;
         }
         //----------------------------------------------------------------
-
+        updateInfo();
         //Run the countdown
         countDown();
 
     }
+    //---------------------------------------
     //Obtain cumulative ammount of steps
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor == nStepDetector){
-            stepsDtected = (int) (stepsDtected+sensorEvent.values[0]);
-            StepDetectVw.setText(String.valueOf(stepsDtected));
             stepCounter++;
+            stepsDtected = (int) (stepsDtected+sensorEvent.values[0]);
+            TotalStepVw.setText(String.valueOf(stepsDtected));
+            StepDetectVw.setText(String.valueOf(stepCounter));
+
         }
     }
     //what to do when the accuracy changes (Obligatory)
@@ -114,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void timeFinnished (){
         //Toast.makeText(this, "Time is up", Toast.LENGTH_SHORT).show();
         mTimeLeftInMillis = START_TIME_IN_MILLIS;
-        //registrarDatos();
+        registrarDatos();
         countDown();
     }
     // Uses certain ammount of miliseconds and counts down (it reflects the equivalent time in screen as minutes and seconds)
@@ -138,28 +143,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
     //------------------------------------
     public void registrarDatos (){
-        AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(this, "RegistroPasos", null, 1);
-        SQLiteDatabase BaseDeDatos = admin.getWritableDatabase();
-        Cursor fila = BaseDeDatos.rawQuery("SELECT MAX(id) FROM RegistroPasos", null);
-
-        if(fila.moveToFirst()) {
-            ContentValues registroDatos = new ContentValues();
-            registroDatos.put("id", fila.getString(0));
-            registroDatos.put("fecha", CurDate);
-            registroDatos.put("pasos", stepCounter);
-
-            BaseDeDatos.insert("RegistroPasos", null, registroDatos);
-            BaseDeDatos.close();
-
-            Toast.makeText(this, "Datos pasos registrados", Toast.LENGTH_SHORT).show();
-
-            stepCounter=0;
+        DataModel dataModel;
+        try{
+            updateInfo();
+            dataModel = new DataModel(-1, this.CurDate, this.CurHour,this.stepCounter);
+            //Toast.makeText(this, "Datos registrdos"+dataModel, Toast.LENGTH_SHORT).show();
         }
-    }
-    //Cambio de pantalla
-    public void AbrirRegistros (View view){
-        Intent siguiente = new Intent(this, RegistryView.class);
-        startActivity(siguiente);
+        catch (Exception e){
+            dataModel = new DataModel(-1, "Error", "Error",0);
+            Toast.makeText(this, "Error no se registraron los datos", Toast.LENGTH_SHORT).show();
+        }
+
+        //Make reference to the database
+        AdminSQLiteOpenHelper dataBaseHelper = new AdminSQLiteOpenHelper(MainActivity.this);
+
+        boolean success = dataBaseHelper.addOne(dataModel);
+        StepDetectVw.setText("0");
+        stepCounter = 0;
     }
 
+    public void updateInfo(){
+        //Obtain system date
+        Calendar calendar = Calendar.getInstance();
+        this.CurDate = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(calendar.getTime());
+        SimpleDateFormat format  = new SimpleDateFormat("HH:mm");
+        this.CurHour = format.format(calendar.getTime());
+    }
 }

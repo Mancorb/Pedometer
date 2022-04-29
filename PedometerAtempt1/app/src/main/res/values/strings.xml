@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">PedometerAtempt1</string>
-    <string name="TextoPasos">Pasos</string>
+    <string name="TextoPasosTotal">Pasos el día de hoy</string>
+    <string name="TextoPasos">Pasos en los últimos 10 minutos</string>
     <string name="Step_detector">0</string>
     <string name="time_left">10:00</string>
     <string name="ButtonText">show data</string>
