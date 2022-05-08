@@ -51,15 +51,6 @@ public class MainActivity extends AppCompatActivity {
         StepDetectVw=(TextView)findViewById(R.id.Step_detector);
         TotalStepVw=(TextView)findViewById(R.id.TotalStepsTV);
 
-        //Ask for permission to access pedometer sensor
-        if(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
-            requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, 0);
-        }
-
-        //Stop phone from sleeping
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         Intent serviceIntent = new Intent(this,StepCounterService.class);
         startService(serviceIntent);
     }
