@@ -5,11 +5,14 @@ import static android.content.ContentValues.TAG;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -33,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private TextView  StepDetectVw, CountDownTV, TotalStepVw;//UI conections
     private String CurDate,CurHour;//Store date
@@ -44,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private long timeleft=86400000;
     private long mTimeLeftInMillis = START_TIME_IN_MILLIS;//Store current time left
     private CountDownTimer mCountdowntimer;//CountDown obj
+    public TextView  StepDetectVw, CountDownTV, TotalStepVw;
+
 
     @SuppressLint({"SourceLockedOrientationActivity", "InlinedApi"})
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -51,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Avoid it from rotating since it restarts the countdown
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //Conect with UI
         CountDownTV=(TextView)findViewById(R.id.CountDowntTxt);
