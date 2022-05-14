@@ -2,6 +2,10 @@ package com.example.pedometeratempt1;
 
 import static android.content.ContentValues.TAG;
 
+import static java.lang.Math.round;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -13,6 +17,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -30,6 +35,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,7 +45,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private TextView  StepDetectVw, CountDownTV, TotalStepVw;//UI conections
-    private String CurDate,CurHour;//Store date
+    private String CurDate,CurHour;//Store date date stored as 5/14/22
     int stepsDtected = 0, stepCounter =0;//Counters for UI
     private SensorManager sensorManager;//Sensor obj
     private Sensor  nStepDetector;//Step detector obj
@@ -48,7 +54,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private long timeleft=86400000;
     private long mTimeLeftInMillis = START_TIME_IN_MILLIS;//Store current time left
     private CountDownTimer mCountdowntimer;//CountDown obj
-    public TextView  StepDetectVw, CountDownTV, TotalStepVw;
+    public static String SHARED_PREFS = "shared_preferences",SAVED_HOUR="Registry_hour",SAVED_STEPS="Total_steps_today",SAVED_DATE="saved_date_info";
+
 
 
     @SuppressLint({"SourceLockedOrientationActivity", "InlinedApi"})
@@ -58,10 +65,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         //Avoid it from rotating since it restarts the countdown
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        //Conect with UI
+        //Connect with UI
         CountDownTV=(TextView)findViewById(R.id.CountDowntTxt);
         StepDetectVw=(TextView)findViewById(R.id.Step_detector);
         TotalStepVw=(TextView)findViewById(R.id.TotalStepsTV);
@@ -73,18 +82,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
             requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, 0);
         }
+
+        loadData();
+
         //run pedometer bool
         pedometerAvailability();
         //Obtain latest info from phone
         updateInfo();
         //Run the countdown
-        stayAliveCountDown();
         countDown();
 
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        saveData();
+    }
 
     //What to do when the app resumes
     @Override
@@ -95,23 +109,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-
-    public void stayAliveCountDown (){
-        //countdown 86,400,000
-
-        mCountdowntimer = new CountDownTimer(timeleft, 1000) {
-
-            @Override
-            public void onTick(long millsUntilFinished) {
-                timeleft = millsUntilFinished;
-            }
-
-            @Override
-            public void onFinish() {
-                Toast.makeText(MainActivity.this, "sucess", Toast.LENGTH_SHORT).show();
-            }
-        }.start();
-    }
 
     // Uses certain ammount of miliseconds and counts down (it reflects the equivalent time in screen as minutes and seconds)
     public void countDown (){
@@ -138,15 +135,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void timeFinnished (){
         //Toast.makeText(this, "Time is up", Toast.LENGTH_SHORT).show();
         mTimeLeftInMillis = START_TIME_IN_MILLIS;
-        registrarDatos();
+        registrarDatos(this.CurDate,this.CurHour,this.stepCounter);
         countDown();
     }
 
-    public void registrarDatos (){
+    public void registrarDatos (String date, String hour, int steps){
         DataModel dataModel;
         try{
             updateInfo();
-            dataModel = new DataModel(-1, this.CurDate, this.CurHour,this.stepCounter);
+            dataModel = new DataModel(-1, date, hour,steps);
             //Toast.makeText(this, "Datos registrdos"+dataModel, Toast.LENGTH_SHORT).show();
         }
         catch (Exception e){
@@ -182,6 +179,119 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    public void saveData(){
+        SharedPreferences sharePref = getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharePref.edit();
+
+        updateInfo();
+        editor.putString(SAVED_HOUR,CurHour);
+
+        Integer temp = Integer.valueOf(String.valueOf(TotalStepVw.getText()));
+        editor.putInt(SAVED_STEPS,temp);
+
+        editor.putString(SAVED_DATE,CurDate);
+    }
+    public void loadData(){
+        SharedPreferences sharePref = getSharedPreferences(SHARED_PREFS,MODE_PRIVATE);
+
+        String tempDate = sharePref.getString(SAVED_DATE,CurDate);
+        String tempHour = sharePref.getString(SAVED_HOUR,CurHour);
+        String tempSteps = sharePref.getString(SAVED_STEPS,"0");
+
+        String [] data = {tempDate,tempHour,tempSteps};
+        CalculateDiff(data);
+    }
+
+    public void CalculateDiff(@NonNull String[] data){
+        if (data[0]!=CurDate){
+            data[2]="0";
+        }
+
+        TotalStepVw.setText(data[2]);//Update total amount of steps per day
+
+        //Convert to appropriate format
+        double pastHour = textTimeToNum(data[1]);
+
+        double newHour = textTimeToNum(CurHour);
+
+        double difference = newHour - pastHour;
+
+        //More then 10 minutes passed
+        if (difference > 0.10){
+            accountForLostTime(difference, pastHour, data[0]);
+        }
+
+
+    }
+    public double textTimeToNum(@NonNull String data){
+        char [] tempTimeText = data.toCharArray();
+        double pastHour=0;
+        double tempVal;
+        for (int i=0; i< tempTimeText.length;i++){
+            if(i!=2){
+
+                if(i>2){tempVal= (int) tempTimeText[i] *0.1;}
+                else{tempVal= (int) tempTimeText[i];}
+
+            }else{tempVal=0;}
+
+            pastHour = pastHour+tempVal;
+        }
+        return pastHour;
+    }
+
+    public void accountForLostTime(double dif, double oldHour, String lastDate){
+        double reps = new BigDecimal(dif).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+        reps = Math.toRadians(reps * 6);
+        reps = new BigDecimal(reps).setScale(1, BigDecimal.ROUND_DOWN).doubleValue();
+
+        //format of date mm/dd/yy (it can also be m/d/yy)
+        char [] date = lastDate.toCharArray();
+        int [] nDate= new int[3];
+        int counter = 0;
+        for (int i =0; i< date.length;i++){
+
+            if (date[i]!='/'){
+                nDate[counter]=Integer.valueOf(date[i]);
+            }else{
+                counter++;
+            }
+        }
+
+        int hour;
+        double minute;
+        String tempDate = numberToDate(nDate);//Date values to string
+
+        //cycle to register every lost 10 min registry
+        for (int i = 0; i<reps; i++){
+
+            //Separate hour and minute 10.30 => 10 (hour), 0.30(minute)
+            hour = (int)oldHour; // 10.30 = 10
+            minute = hour - oldHour;// 10.30 - 10 = 0.30
+
+            if (hour>24){//past 12am new day
+                hour = 0;
+                minute = 0;
+                nDate[0]++;
+                tempDate = numberToDate(nDate);
+            }
+            else if (minute >= 0.6){// 60 min = 1hr
+                hour++;
+                minute = 0.0;
+            }
+
+            String temp = String.valueOf(hour)+":"+String.valueOf(minute);
+
+            registrarDatos(tempDate,temp,0);
+
+            oldHour = hour+minute+0.1;
+        }
+
+    }
+    public String numberToDate(@NonNull int[] nDate){
+        String tempDate = "";
+        return tempDate= String.valueOf(nDate[0])+'/'+String.valueOf(nDate[1])+'/'+String.valueOf(nDate[2]);
+    }
 
     //---------------------------------------
 
