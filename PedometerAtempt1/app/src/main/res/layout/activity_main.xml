@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="#ffd788">
-
+    android:background="#ffd788"
+    tools:context=".MainActivity">
 
 
     <TextView
@@ -69,7 +68,7 @@
         android:id="@+id/TotalStepsTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="104dp"
+        android:layout_marginTop="68dp"
         android:text="@string/Step_detector"
         android:textColor="#71176E"
         android:textSize="48sp"
