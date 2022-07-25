@@ -1,10 +1,14 @@
 package com.example.pedometeratempt1;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AdminSQLiteOpenHelper extends SQLiteOpenHelper{
 
@@ -48,5 +52,39 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper{
         else {
             return false;
         }
+    }
+
+    public List<DataModel> getEverything(){
+        List<DataModel> returnList = new ArrayList<>();
+
+        String queryString = "SELECT * FROM "+TABLA_ACTIVIDAD;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(queryString,null);//cursor is the result set
+
+        if(cursor.moveToFirst()){
+            //loop through the results
+            do{
+
+                int id = cursor.getInt(0);
+                String date = cursor.getString(1);
+                String time = cursor.getString(2);
+                int steps = cursor.getInt(3);
+
+                DataModel newData = new DataModel(id,date,time,steps);
+
+                returnList.add(newData);
+
+            }while(cursor.moveToNext());
+
+        }else{
+            //failure to add anithing to the list
+
+        }
+        cursor.close();
+        db.close();
+
+        return returnList;
     }
 }

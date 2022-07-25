@@ -23,21 +23,29 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.DatabaseMetaData;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private TextView  StepDetectVw, CountDownTV, TotalStepVw;//UI conections
+    private static final String FILE_NAME = "datosCuentaPasos.txt";
     private String CurDate,CurHour,tempDate,tempHour,tempSteps;//Store date date stored as 5/14/22
     int stepsDtected = 0, stepCounter =0;//Counters for UI
     private SensorManager sensorManager;//Sensor obj
@@ -68,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         StepDetectVw=(TextView)findViewById(R.id.Step_detector);
         TotalStepVw=(TextView)findViewById(R.id.TotalStepsTV);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
 
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//maintain portrait view
 
@@ -299,6 +308,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return tempDate= String.valueOf(nDate[0])+'/'+String.valueOf(nDate[1])+'/'+String.valueOf(nDate[2]);
     }
 
+    //Export data
+    public void exportData(View view){
+        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(MainActivity.this);
+        List<DataModel> data = databaseHelper.getEverything();
+
+        String res []= new String[data.size()];
+
+        for (int i = 0; i< data.size(); i++){
+            DataModel temp = data.get(i);
+            String temp2 = temp.getFecha()+' '+temp.getHora()+' '+temp.getPasos()+'\n';
+            res[i]=temp2;
+        }
+
+        FileOutputStream fos  = null;
+
+        try {
+            fos = openFileOutput(FILE_NAME, MODE_PRIVATE);
+
+            for (int i =0; i<res.length; i++){
+                fos.write(res[i].getBytes());
+            }
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(fos != null){
+                try {
+                    fos.close();
+                    Toast.makeText(this, "Data saved to:"+getFilesDir()+"/"+FILE_NAME, Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
     //---------------------------------------
 
     public void pedometerAvailability(){
@@ -318,6 +367,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
+
 
     public static double round(double value, int places) {
         BigDecimal bd = BigDecimal.valueOf(value);
