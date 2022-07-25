@@ -23,21 +23,25 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.DatabaseMetaData;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private TextView  StepDetectVw, CountDownTV, TotalStepVw;//UI conections
+    private Button exportB;
     private String CurDate,CurHour,tempDate,tempHour,tempSteps;//Store date date stored as 5/14/22
     int stepsDtected = 0, stepCounter =0;//Counters for UI
     private SensorManager sensorManager;//Sensor obj
@@ -299,6 +303,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return tempDate= String.valueOf(nDate[0])+'/'+String.valueOf(nDate[1])+'/'+String.valueOf(nDate[2]);
     }
 
+    //Export data
+    public void exportData(View view){
+        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(MainActivity.this);
+        List<DataModel> data = databaseHelper.getEverything();
+
+        for (int i = 0; i< data.size(); i++){
+            DataModel temp = data.get(i);
+            String res = temp.getFecha()+' '+temp.getHora()+' '+temp.getPasos();
+
+
+        }
+
+
+    }
+
     //---------------------------------------
 
     public void pedometerAvailability(){
@@ -318,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
+
 
     public static double round(double value, int places) {
         BigDecimal bd = BigDecimal.valueOf(value);
