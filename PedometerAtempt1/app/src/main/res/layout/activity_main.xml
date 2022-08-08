@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffd788"
+    android:background="#B1E476"
     tools:context=".MainActivity">
 
 
@@ -15,7 +15,7 @@
         android:layout_marginTop="60dp"
         android:fontFamily="sans-serif-condensed"
         android:text="@string/Step_detector"
-        android:textColor="#71176E"
+        android:textColor="#2E5A02"
         android:textSize="96sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -31,7 +31,7 @@
         android:fontFamily="sans-serif-condensed"
         android:text="@string/TextoPasos"
         android:textAlignment="center"
-        android:textColor="#71176E"
+        android:textColor="#2E5A02"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
         android:text="@string/time_left"
-        android:textColor="#71176E"
+        android:textColor="#2E5A02"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
@@ -58,7 +58,7 @@
         android:layout_marginTop="9dp"
         android:fontFamily="sans-serif-condensed-medium"
         android:text="@string/TextoPasosTotal"
-        android:textColor="#71176E"
+        android:textColor="#2E5A02"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="68dp"
         android:text="@string/Step_detector"
-        android:textColor="#71176E"
+        android:textColor="#2E5A02"
         android:textSize="48sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,10 +82,18 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="32dp"
+        android:background="#FF5722"
+        android:backgroundTint="#FF5722"
+        android:backgroundTintMode="add"
         android:onClick="exportData"
         android:text="@string/ButtonText"
+        android:textColor="#000000"
+        android:textColorHighlight="#00FFFFFF"
+        android:textColorLink="#00FFFFFF"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/CountDowntTxt" />
+        app:layout_constraintTop_toBottomOf="@+id/CountDowntTxt"
+        tools:ignore="TextContrastCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,7 @@
     <string name="TextoPasos">Pasos en los últimos 10 minutos</string>
     <string name="Step_detector">0</string>
     <string name="time_left">10:00</string>
-    <string name="ButtonText">export data</string>
+    <string name="ButtonText">Exportar datos</string>
     <string name="title_activity_registry_viewer">RegistryViewer</string>
     <!--Strings for registry view-->
     <string name="RegstryTV">Registry View</string>
