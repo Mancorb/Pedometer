@@ -4,30 +4,88 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ffd788"
     tools:context=".MainActivity">
+
 
     <TextView
         android:id="@+id/Step_detector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="60dp"
         android:fontFamily="sans-serif-condensed"
         android:text="@string/Step_detector"
-        android:textColor="#00BCD4"
-        android:textSize="48sp"
+        android:textColor="#71176E"
+        android:textSize="96sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/StepCounterTV" />
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        tools:ignore="TextContrastCheck" />
 
     <TextView
-        android:id="@+id/StepCounterTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="184dp"
-        android:text="@string/Step_Counter"
-        android:textColor="#00BCD4"
+        android:id="@+id/textView"
+        android:layout_width="267dp"
+        android:layout_height="88dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/TextoPasos"
+        android:textAlignment="center"
+        android:textColor="#71176E"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Step_detector"
+        tools:ignore="TextContrastCheck" />
+
+    <TextView
+        android:id="@+id/CountDowntTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:text="@string/time_left"
+        android:textColor="#71176E"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.492"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:text="@string/TextoPasosTotal"
+        android:textColor="#71176E"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TotalStepsTV" />
+
+    <TextView
+        android:id="@+id/TotalStepsTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:text="@string/Step_detector"
+        android:textColor="#71176E"
+        android:textSize="48sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:onClick="exportData"
+        android:text="@string/ButtonText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CountDowntTxt" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

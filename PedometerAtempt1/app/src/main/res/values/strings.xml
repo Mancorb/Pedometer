@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">PedometerAtempt1</string>
-    <string name="Step_Counter">Step counter</string>
-    <string name="Step_detector">Step detector</string>
+    <string name="TextoPasosTotal">Pasos el día de hoy</string>
+    <string name="TextoPasos">Pasos en los últimos 10 minutos</string>
+    <string name="Step_detector">0</string>
+    <string name="time_left">10:00</string>
+    <string name="ButtonText">export data</string>
+    <string name="title_activity_registry_viewer">RegistryViewer</string>
+    <!--Strings for registry view-->
+    <string name="RegstryTV">Registry View</string>
+    <string name="ReturnButton">Return</string>
 </resources>
