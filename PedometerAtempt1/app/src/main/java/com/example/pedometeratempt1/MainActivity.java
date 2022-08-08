@@ -1,14 +1,10 @@
 package com.example.pedometeratempt1;
 
 import static android.content.ContentValues.TAG;
-
-import static java.lang.Math.round;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -21,20 +17,18 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.DatabaseMetaData;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -45,7 +39,10 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private TextView  StepDetectVw, CountDownTV, TotalStepVw;//UI conections
-    private static final String FILE_NAME = "datosCuentaPasos.txt";
+    //private static final String FILE_NAME = "/storage/self/primary/Documents/test.txt";
+
+    File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+
     private String CurDate,CurHour,tempDate,tempHour,tempSteps;//Store date date stored as 5/14/22
     int stepsDtected = 0, stepCounter =0;//Counters for UI
     private SensorManager sensorManager;//Sensor obj
@@ -61,10 +58,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @SuppressLint({"SourceLockedOrientationActivity", "InlinedApi"})
     @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
 
@@ -77,8 +76,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         TotalStepVw=(TextView)findViewById(R.id.TotalStepsTV);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-
-        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//maintain portrait view
 
         if(ContextCompat.checkSelfPermission(this, //Obtain sensor aproval
                 Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_DENIED){
@@ -320,33 +317,41 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             String temp2 = temp.getFecha()+' '+temp.getHora()+' '+temp.getPasos()+'\n';
             res[i]=temp2;
         }
+        //create and save data into txt file
+        saveFile(res);
+    }
 
-        FileOutputStream fos  = null;
-
+    public void saveFile(String data[]){
+        root = new File(root , "Registro_de_pasos.txt");
         try {
-            fos = openFileOutput(FILE_NAME, MODE_PRIVATE);
-
-            for (int i =0; i<res.length; i++){
-                fos.write(res[i].getBytes());
+            FileOutputStream fout = new FileOutputStream(root);
+            for (int i =0; i < data.length; i++){
+                fout.write(data[i].getBytes());
             }
 
-
+            fout.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+
+            boolean bool = false;
+            try {
+                // try to create the file
+                bool = root.createNewFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            if (bool){
+                // call the method again
+                saveData();
+            }else {
+                throw new IllegalStateException("Failed to create file");
+            }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if(fos != null){
-                try {
-                    fos.close();
-                    Toast.makeText(this, "Data saved to:"+getFilesDir()+"/"+FILE_NAME, Toast.LENGTH_SHORT).show();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
-
     }
+
 
     //---------------------------------------
 
