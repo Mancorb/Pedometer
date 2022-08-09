@@ -223,7 +223,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (difference > 0.1){
             accountForLostTime(difference, pastHour, data[0]);
         }
-        checkForNewDay();
 
     }
     public double textTimeToNum(@NonNull String data){
@@ -307,13 +306,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String tempDate = "";
         return tempDate= String.valueOf(nDate[0])+'/'+String.valueOf(nDate[1])+'/'+String.valueOf(nDate[2]);
     }
-    public void checkForNewDay(){
-        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(MainActivity.this);
-        String data = databaseHelper.getLastDate();
-        if ((data != "") && (data != CurDate)){
-            TotalStepVw.setText("0");
-        }
-    }
+
     //Export data
     public void exportData(View view){
         AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(MainActivity.this);
