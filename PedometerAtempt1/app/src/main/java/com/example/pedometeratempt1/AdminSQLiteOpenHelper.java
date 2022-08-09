@@ -16,6 +16,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper{
     public static final String COLUMN_FECHA = "FECHA";
     public static final String COLUMN_HORA = "HORA";
     public static final String COLUMN_PASOS = "PASOS";
+    public static final String COLUMN_ID = "ID";
 
     public AdminSQLiteOpenHelper(@Nullable Context context) { //constructor de la base de datos
         super(context, "registro.db", null, 1);
@@ -23,7 +24,7 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper{
     //function called the FIRST TIME the database is accessed. Create the database here
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTableStatement = "CREATE TABLE "+ TABLA_ACTIVIDAD + "(ID INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_FECHA + " TEXT, " + COLUMN_HORA + " TEXT, " + COLUMN_PASOS + " INTEGER)";
+        String createTableStatement = "CREATE TABLE "+ TABLA_ACTIVIDAD + "("+COLUMN_ID+" INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_FECHA + " TEXT, " + COLUMN_HORA + " TEXT, " + COLUMN_PASOS + " INTEGER)";
 
         db.execSQL(createTableStatement);
     }
@@ -53,7 +54,20 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper{
             return false;
         }
     }
+    public String getLastDate(){
+        String queryString = "SELECT "+COLUMN_FECHA+" FROM "+TABLA_ACTIVIDAD+" WHERE "+COLUMN_ID+" = (SELECT MAX("+COLUMN_ID+") FROM "+TABLA_ACTIVIDAD+")";
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        Cursor cursor = db.rawQuery(queryString,null);
+
+        String data = "";
+        if(cursor.moveToFirst()){
+            data = cursor.toString();
+        }
+        cursor.close();
+        db.close();
+        return data;
+    }
     public List<DataModel> getEverything(){
         List<DataModel> returnList = new ArrayList<>();
 

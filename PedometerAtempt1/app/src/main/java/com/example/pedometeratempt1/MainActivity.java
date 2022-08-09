@@ -41,9 +41,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView  StepDetectVw, CountDownTV, TotalStepVw;//UI conections
     //private static final String FILE_NAME = "/storage/self/primary/Documents/test.txt";
 
-    File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
 
-    private String CurDate,CurHour,tempDate,tempHour,tempSteps;//Store date date stored as 5/14/22
+
+    private String CurDate,CurHour,tempDate,tempHour,tempSteps;//Date stored as 5/14/22
     int stepsDtected = 0, stepCounter =0;//Counters for UI
     private SensorManager sensorManager;//Sensor obj
     private Sensor  nStepDetector;//Step detector obj
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final long START_TIME_IN_MILLIS = 600000;//Amount of time for timer 600000 = 10 min
     private long mTimeLeftInMillis = START_TIME_IN_MILLIS;//Store current time left
     private CountDownTimer mCountdowntimer;//CountDown obj
-    public static String SHARED_PREFS = "shared_preferences",SAVED_HOUR="Registry_hour",SAVED_STEPS="Total_steps_today",SAVED_DATE="saved_date_info";
+    public static String SHARED_PREFS = "shared_preferences",SAVED_HOUR="Registry_hour",SAVED_STEPS="Total_steps_today",SAVED_DATE="saved_date_info", CURRENT_STEPS="Amount_of_recent_steps";
 
     private static final DecimalFormat dfZero = new DecimalFormat("0.00");
 
@@ -188,6 +188,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         editor.putString(SAVED_STEPS,temp);
         editor.putString(SAVED_HOUR,CurHour);
         editor.putString(SAVED_DATE,CurDate);
+        temp = StepDetectVw.getText().toString();
+        editor.putString(CURRENT_STEPS,temp);
         editor.apply();
 
         //Toast.makeText(this, "Saved"+CurHour+" - "+temp+" - "+CurDate, Toast.LENGTH_SHORT).show();
@@ -199,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tempDate = sharePref.getString(SAVED_DATE,CurDate);
         tempHour = sharePref.getString(SAVED_HOUR,CurHour);
         tempSteps = sharePref.getString(SAVED_STEPS,String.valueOf(TotalStepVw.getText()));
+        StepDetectVw.setText(sharePref.getString(CURRENT_STEPS,"0"));//restore current amount of steps.
 
         String [] data = {tempDate,tempHour,tempSteps};
         //Toast.makeText(this, "found this stored data:"+data[0]+"-"+data[1]+"-"+data[2], Toast.LENGTH_SHORT).show();
@@ -220,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (difference > 0.1){
             accountForLostTime(difference, pastHour, data[0]);
         }
-
+        checkForNewDay();
 
     }
     public double textTimeToNum(@NonNull String data){
@@ -275,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             minute = round(oldHour - hour,2);// 10.30 - 10 = 0.30
 
-            if (hour>24){//past 12am new day
+            if (hour>=24){//past 12am new day
                 hour = 0;
                 minute = 0;
                 nDate[1]++;
@@ -304,7 +307,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String tempDate = "";
         return tempDate= String.valueOf(nDate[0])+'/'+String.valueOf(nDate[1])+'/'+String.valueOf(nDate[2]);
     }
-
+    public void checkForNewDay(){
+        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(MainActivity.this);
+        String data = databaseHelper.getLastDate();
+        if ((data != "") && (data != CurDate)){
+            TotalStepVw.setText("0");
+        }
+    }
     //Export data
     public void exportData(View view){
         AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(MainActivity.this);
@@ -322,7 +331,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void saveFile(String data[]){
+        File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         root = new File(root , "test.txt");
+
         try {
             FileOutputStream fout = new FileOutputStream(root);
             for (int i =0; i < data.length; i++){
@@ -330,6 +341,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
 
             fout.close();
+            Toast.makeText(this, "Datos exportados", Toast.LENGTH_SHORT).show();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
 
