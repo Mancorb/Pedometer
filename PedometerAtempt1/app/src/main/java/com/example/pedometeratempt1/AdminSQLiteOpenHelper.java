@@ -55,14 +55,14 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper{
         }
     }
     public String getLastDate(){
-        String queryString = "SELECT "+COLUMN_FECHA+"  FROM "+TABLA_ACTIVIDAD;
+        String queryString = "SELECT "+COLUMN_FECHA+" FROM "+TABLA_ACTIVIDAD+" WHERE "+COLUMN_ID+" = (SELECT MAX("+COLUMN_ID+") FROM "+TABLA_ACTIVIDAD+")";
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(queryString,null);
 
         String data = "";
         if(cursor.moveToFirst()){
-            data = cursor.getString(0);
+            data = cursor.toString();
         }
         cursor.close();
         db.close();

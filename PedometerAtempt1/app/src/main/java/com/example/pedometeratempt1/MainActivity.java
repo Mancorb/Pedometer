@@ -224,17 +224,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             accountForLostTime(difference, pastHour, data[0]);
         }
 
-        nextDayCounter();
-
     }
-    public void nextDayCounter(){
-        AdminSQLiteOpenHelper databaseHelper = new AdminSQLiteOpenHelper(MainActivity.this);
-        String result = databaseHelper.getLastDate();
-        if (result != "" && result !=CurDate){
-            TotalStepVw.setText(0);
-        }
-    }
-
     public double textTimeToNum(@NonNull String data){
         char [] tempTimeText = data.toCharArray();
         String tempPastHour="";
