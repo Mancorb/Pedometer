@@ -201,11 +201,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tempDate = sharePref.getString(SAVED_DATE,CurDate);
         tempHour = sharePref.getString(SAVED_HOUR,CurHour);
         tempSteps = sharePref.getString(SAVED_STEPS,String.valueOf(TotalStepVw.getText()));
-        StepDetectVw.setText(sharePref.getString(CURRENT_STEPS,"0"));//restore current amount of steps.
+        String temp =sharePref.getString(CURRENT_STEPS,"0");//restore current amount of steps.
+        StepDetectVw.setText(temp);
 
         String [] data = {tempDate,tempHour,tempSteps};
         //Toast.makeText(this, "found this stored data:"+data[0]+"-"+data[1]+"-"+data[2], Toast.LENGTH_SHORT).show();
         CalculateDiff(data);
+
+        updateNewDay(tempDate);
     }
 
     public void CalculateDiff(@NonNull String[] data){
@@ -223,8 +226,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (difference > 0.1){
             accountForLostTime(difference, pastHour, data[0]);
         }
+        
+        
 
     }
+
+    public void updateNewDay(String date){
+
+        if (date.equals(CurDate)){
+            Toast.makeText(this, "data="+date+" Date="+CurDate, Toast.LENGTH_SHORT).show();
+        }
+        else {
+            TotalStepVw.setText("0");
+            Toast.makeText(this, "Updated to new day", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
     public double textTimeToNum(@NonNull String data){
         char [] tempTimeText = data.toCharArray();
         String tempPastHour="";
